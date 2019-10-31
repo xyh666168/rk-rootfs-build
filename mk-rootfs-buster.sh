@@ -84,6 +84,11 @@ if  [ "$VERSION" == "jenkins" ] ; then
 	sudo cp -b /etc/resolv.conf  $TARGET_ROOTFS_DIR/etc/resolv.conf
 fi
 
+# rga
+sudo mkdir -p $TARGET_ROOTFS_DIR/usr/include/rga
+sudo cp packages/$ARCH/rga/include/*      $TARGET_ROOTFS_DIR/usr/include/rga/
+sudo cp packages/$ARCH/rga/lib/librga.so  $TARGET_ROOTFS_DIR/usr/lib/
+
 echo -e "\033[36m Change root.....................\033[0m"
 if [ "$ARCH" == "armhf" ]; then
 	sudo cp /usr/bin/qemu-arm-static $TARGET_ROOTFS_DIR/usr/bin/
@@ -97,13 +102,14 @@ cat << EOF | sudo chroot $TARGET_ROOTFS_DIR
 chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper
 apt-get update
 apt-get install -y lxpolkit
+apt-get install -y bash
 apt-get install -y blueman
 echo exit 101 > /usr/sbin/policy-rc.d
 chmod +x /usr/sbin/policy-rc.d
 apt-get install -y blueman
 rm -f /usr/sbin/policy-rc.d
 
-apt-get install -y systemd-sysv vi
+apt-get install -y systemd-sysv vim
 
 #---------------power management --------------
 apt-get install -y busybox pm-utils triggerhappy
@@ -117,16 +123,42 @@ dpkg -i *.deb
 rm -rf *.deb
 apt-get install -f -y
 
-#---------------conflict workaround --------------
-apt-get remove -y xserver-xorg-input-evdev
+#---------------Others--------------
+#---------Camera---------
+apt-get install cheese -y
+dpkg -i  /packages/others/camera/*.deb
+if [ "$ARCH" == "armhf" ]; then
+       cp /packages/others/camera/libv4l-mplane.so /usr/lib/arm-linux-gnueabihf/libv4l/plugins/
+elif [ "$ARCH" == "arm64" ]; then
+       cp /packages/others/camera/libv4l-mplane.so /usr/lib/aarch64-linux-gnu/libv4l/plugins/
+fi
 
-apt-get install -y libxfont-dev libinput-bin libinput10 libwacom-common libwacom2 libunwind8 xserver-xorg-input-libinput libdmx1 \
-		   libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xf86dri0 libxcb-xv0 libpixman-1-dev \
-		   libxkbfile-dev libpciaccess-dev mesa-common-dev
+#apt-get remove -y libgl1-mesa-dri:$ARCH xserver-xorg-input-evdev:$ARCH
+apt-get remove -y xserver-xorg-input-evdev:$ARCH
+apt-get install -y libinput-bin:$ARCH libinput10:$ARCH libwacom2:$ARCH libunwind8:$ARCH xserver-xorg-input-libinput:$ARCH libxml2-dev:$ARCH libglib2.0-dev:$ARCH libpango1.0-dev:$ARCH libimlib2-dev:$ARCH librsvg2-dev:$ARCH libxcursor-dev:$ARCH g++ make libdmx-dev:$ARCH libxcb-xv0-dev:$ARCH libxfont-dev:$ARCH libxkbfile-dev:$ARCH libpciaccess-dev:$ARCH mesa-common-dev:$ARCH libpixman-1-dev:$ARCH x11proto-dev=2018.4-4 libxcb-xf86dri0-dev:$ARCH qtmultimedia5-examples:$ARCH
+
+#Openbox
+apt-get install -f -y debhelper gettext libstartup-notification0-dev libxrender-dev pkg-config libglib2.0-dev libxml2-dev perl libxt-dev libxinerama-dev libxrandr-dev libpango1.0-dev libx11-dev: autoconf automake libimlib2-dev libxcursor-dev autopoint librsvg2-dev libxi-dev
+
+#---------FFmpeg---------
+apt-get install -f -y ffmpeg
+dpkg -i /packages/others/ffmpeg/*
+
+#---------MPV---------
+apt-get install -f -y mpv
+
+#---------update chromium-----
+apt-get install chromium -f -y
+cp -f /packages/others/chromium/etc/chromium.d/default-flags /etc/chromium.d/
 
 #---------------Xserver--------------
 echo -e "\033[36m Setup Xserver.................... \033[0m"
 dpkg -i  /packages/xserver/*
+apt-get install -f -y
+
+#---------------Openbox--------------
+echo -e "\033[36m Install openbox.................... \033[0m"
+dpkg -i  /packages/openbox/*.deb
 apt-get install -f -y
 
 #---------------Video--------------
@@ -137,19 +169,6 @@ apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-tools gstreamer1.0-als
 dpkg -i  /packages/video/mpp/*.deb
 dpkg -i  /packages/video/gstreamer/*.deb
 apt-get install -f -y
-
-#---------------Qt-Video--------------
-dpkg -l | grep lxde
-if [ "$?" -eq 0 ]; then
-	# if target is base, we won't install qt
-	apt-get install  -y libqt5opengl5 libqt5qml5 libqt5quick5 libqt5widgets5 libqt5gui5 libqt5core5a qml-module-qtquick2 \
-		libqt5multimedia5 libqt5multimedia5-plugins libqt5multimediaquick-p5
-	#dpkg -i  /packages/video/qt/*
-	apt-get install -f -y
-else
-	echo "won't install qt"
-fi
-
 
 #---------------TODO: USE DEB-------------- 
 #---------------Setup Graphics-------------- 

@@ -148,10 +148,10 @@ xinit
 #xmms2-plugin-mad
 #xmms2-plugin-pulse
 #xmms2-plugin-vorbis
-xserver-xorg
-xserver-xorg-input-evdev
+#xserver-xorg
+#xserver-xorg-input-evdev
 #xserver-xorg-video-fbdev
-xserver-xorg-video-modesetting
+#xserver-xorg-video-modesetting
 #xscreensaver
 #xterm
 zip

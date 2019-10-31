@@ -54,6 +54,8 @@ if [ -e "/usr/lib/aarch64-linux-gnu" ]; then
 	rm libGLESv2.so.2.0.0
     elif [ -e "libGLEW.so.2.0.0" ]; then
 	rm libGLEW.so.2.0.0
+    elif [ -e "libwayland-egl.so.1.0.0" ]; then
+	rm libwayland-egl.so.1.0.0
     fi
     ln -sf libMali.so libEGL.so.1.1.0
     ln -sf libMali.so libEGL.so
@@ -65,6 +67,8 @@ if [ -e "/usr/lib/aarch64-linux-gnu" ]; then
     ln -sf libMali.so libGLESv1_CM.so
     ln -sf libMali.so libGLESv1_CM.so.1
     ln -sf libMali.so libGLESv1_CM.so.1.1
+    ln -sf libMali.so libwayland-egl.so.1.0.0
+    ln -sf libMali.so libwayland-egl.so
 
 fi
 if [ -e "/usr/lib/arm-linux-gnueabihf" ]; then
