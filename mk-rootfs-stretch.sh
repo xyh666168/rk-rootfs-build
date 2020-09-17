@@ -95,6 +95,8 @@ cat <<EOF | sudo chroot $TARGET_ROOTFS_DIR
 chmod o+x /usr/lib/dbus-1.0/dbus-daemon-launch-helper
 apt-get update
 
+apt install -y apt-transport-https
+
 #---------------power management --------------
 apt-get install -y busybox pm-utils triggerhappy
 cp /etc/Powermanager/triggerhappy.service  /lib/systemd/system/triggerhappy.service
@@ -126,7 +128,7 @@ apt-get remove -y libgl1-mesa-dri:$ARCH xserver-xorg-input-evdev:$ARCH
 apt-get install -y libxfont1:$ARCH libinput-bin:$ARCH libinput10:$ARCH libwacom2:$ARCH libunwind8:$ARCH xserver-xorg-input-libinput:$ARCH libxml2-dev:$ARCH libglib2.0-dev:$ARCH libpango1.0-dev:$ARCH libimlib2-dev:$ARCH librsvg2-dev:$ARCH libxcursor-dev:$ARCH g++ make libdmx-dev:$ARCH libxcb-xv0-dev:$ARCH libxfont-dev:$ARCH libxkbfile-dev:$ARCH libpciaccess-dev:$ARCH mesa-common-dev:$ARCH libpixman-1-dev:$ARCH
 
 #---------------Xserver--------------
-echo "deb http://http.debian.net/debian/ buster main contrib non-free" >> /etc/apt/sources.list
+echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian buster main" >> /etc/apt/sources.list
 apt-get update
 
 apt-get install -f -y x11proto-dev=2018.4-4 libxcb-xf86dri0-dev:$ARCH qtmultimedia5-examples:$ARCH
